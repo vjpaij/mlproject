@@ -1,10 +1,14 @@
 import os
 import sys
-from src.exception import CustomException
-from src.logger import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
+
+from src.exception import CustomException
+from src.logger import logging
+from src.components.data_transformation import DataTransformation
+from src.components.data_transformation import DataTransformationConfig
+
 
 # if we are defining only variables inside a class, we can use decorator @dataclass to make it simpler
 # it wouldnt require a separate constructor to be defined
@@ -27,11 +31,13 @@ class DataIngestion:
 
             # exist_ok=True: keeps adding to the directory
             os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True) 
-
-            # index=False: This excludes the DataFrame's index from the CSV output, saving only the data in the columns. This is 
-            # often used when you don’t need the row indices in the CSV file, which makes it cleaner and focuses only on the data.
-            # index=True (default): This includes the DataFrame’s index as the first column in the CSV file. This can be useful if 
-            # the index holds meaningful information or if you want to preserve it as part of the data.
+           
+            '''
+            index=False: This excludes the DataFrame's index from the CSV output, saving only the data in the columns. This is 
+            often used when you don’t need the row indices in the CSV file, which makes it cleaner and focuses only on the data.
+            index=True (default): This includes the DataFrame’s index as the first column in the CSV file. This can be useful if 
+            the index holds meaningful information or if you want to preserve it as part of the data.
+            '''
             df.to_csv(self.ingestion_config.raw_data_path,index=False,header=True)
 
             logging.info('Initiating Train Test Split')
@@ -48,6 +54,9 @@ class DataIngestion:
         
 if __name__=="__main__":
     obj=DataIngestion()
-    obj.initiate_data_ingestion()
+    train_data,test_data=obj.initiate_data_ingestion()
+
+    data_transformation=DataTransformation()
+    data_transformation.initiate_data_transformation(train_data,test_data)
             
 
